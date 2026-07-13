@@ -19,34 +19,34 @@ function sendToAI(topic) {
     output.innerHTML = reply.replace(/\n/g, "<br>");
 }
 
-
-// Chat function
-function askAI() {
+async function askAI() {
     let input = document.getElementById("userInput");
-    let chat = document.getElementById("chat");
-
     let text = input.value.trim();
+
     if (text === "") return;
 
     addMessage(text, "user");
-
-    let reply = "";
-
-    if (text.toLowerCase().includes("photosynthesis")) {
-        reply = "🌿 Plants make food using sunlight.";
-    }
-    else if (text.toLowerCase().includes("mcq")) {
-        reply = "📝 MCQs available in MCQ section.";
-    }
-    else {
-        reply = "🤖 I am still learning...";
-    }
-
-    setTimeout(() => {
-        addMessage(reply, "bot");
-    }, 500);
-
     input.value = "";
+
+    try {
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: text
+            })
+        });
+
+        const data = await response.json();
+
+        addMessage(data.reply, "bot");
+
+    } catch (error) {
+        console.error(error);
+        addMessage("❌ Error connecting to AI.", "bot");
+    }
 }
 
 
