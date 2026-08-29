@@ -1,31 +1,350 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>MDCAT AI Platform</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDCAT AI Platform - Ultimate Prep Companion</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --primary: #00f2fe;
+      --secondary: #4facfe;
+      --accent: #10b981;
+      --text: #9ca3af;
+      --text-bright: #f9fafb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Navbar Header */
+    header {
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; text-shadow: 0 0 12px rgba(0, 242, 254, 0.4); }
+
+    /* Main Container */
+    main { flex: 1; max-width: 1100px; width: 100%; margin: 20px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 24px; }
+
+    /* Hero Banner */
+    .hero {
+      background: linear-gradient(135deg, rgba(0,242,254,0.1) 0%, rgba(79,172,254,0.05) 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+    .hero h1 { color: var(--text-bright); font-size: 1.8rem; margin-bottom: 8px; }
+    .hero p { color: var(--text); font-size: 0.95rem; }
+
+    /* Quick Navigation Tabs */
+    .tabs-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.3s ease;
+    }
+    .tab-btn:hover, .tab-btn.active {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #000;
+      border-color: transparent;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+    }
+
+    /* Content Cards Section */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: none;
+    }
+    .section-card.active { display: block; }
+    .section-title { font-size: 1.2rem; color: var(--text-bright); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* AI Chat / Output Box */
+    .chat-box {
+      background: #070a12;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 280px;
+      max-height: 420px;
+      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .msg { padding: 12px 16px; border-radius: 10px; line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem; }
+    .user-msg { background: #1e293b; color: var(--primary); align-self: flex-end; max-width: 80%; border: 1px solid #334155; }
+    .ai-msg { background: #0f172a; color: var(--text-bright); align-self: flex-start; width: 100%; border: 1px solid #1e293b; }
+
+    /* Input Controls */
+    .input-box { display: flex; gap: 10px; }
+    input[type="text"], input[type="number"] {
+      flex: 1; background: #070a12; border: 1px solid var(--card-border);
+      color: var(--text-bright); padding: 12px 16px; border-radius: 10px; outline: none; font-size: 0.95rem;
+    }
+    input:focus { border-color: var(--primary); }
+    .btn-send {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #000; border: none; padding: 12px 24px; border-radius: 10px;
+      font-weight: 700; cursor: pointer; transition: 0.2s;
+    }
+    .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Aggregate Calculator Grid */
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; color: var(--text); }
+    .calc-result {
+      background: #070a12; border: 1px solid var(--accent); border-radius: 10px;
+      padding: 16px; text-align: center; color: var(--accent); font-size: 1.2rem; font-weight: 800;
+    }
+
+    /* Trigonometry Custom Table */
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
+    th, td { padding: 12px; border: 1px solid var(--card-border); }
+    th { background: #1f2937; color: var(--primary); }
+    td { background: #070a12; color: var(--text-bright); }
+
+    /* Tricks Box */
+    .trick-card {
+      background: rgba(16, 185, 129, 0.05); border: 1px solid var(--accent);
+      border-radius: 10px; padding: 14px; margin-top: 16px; color: var(--text-bright); font-size: 0.9rem;
+    }
+
+    footer { text-align: center; padding: 20px; font-size: 0.85rem; color: #6b7280; border-top: 1px solid var(--card-border); margin-top: auto; }
+  </style>
 </head>
 <body>
 
-    <h1>MDCAT AI Platform</h1>
+  <header>
+    <div class="logo"><i class="fa-solid fa-brain"></i> MDCAT AI Platform</div>
+  </header>
 
-    <!-- Feature Buttons -->
-    <div class="features">
-        <button onclick="sendToAI('mcq')">📝 MCQs</button>
-        <button onclick="sendToAI('planner')">📅 Planner</button>
-        <button onclick="sendToAI('ai')">🤖 AI</button>
+  <main>
+    <!-- Hero Banner -->
+    <div class="hero">
+      <h1>MDCAT Prep & AI Guidance Suite</h1>
+      <p>AI Tutor, MCQ Generator, Study Schedules, Aggregate Calculator & Physics Short Tricks.</p>
     </div>
 
-    <!-- Output Box -->
-    <div id="output"></div>
+    <!-- Mode Tabs -->
+    <div class="tabs-container">
+      <button class="tab-btn active" onclick="switchTab('ai', this)"><i class="fa-solid fa-robot"></i> AI Tutor</button>
+      <button class="tab-btn" onclick="switchTab('mcqs', this)"><i class="fa-solid fa-list-check"></i> MCQs Generator</button>
+      <button class="tab-btn" onclick="switchTab('planner', this)"><i class="fa-solid fa-calendar-days"></i> Study Planner</button>
+      <button class="tab-btn" onclick="switchTab('calc', this)"><i class="fa-solid fa-calculator"></i> Aggregate Calc</button>
+      <button class="tab-btn" onclick="switchTab('trig', this)"><i class="fa-solid fa-square-root-variable"></i> Physics Trig Tricks</button>
+    </div>
 
-    <!-- Chat Input -->
-    <input type="text" id="userInput" placeholder="Type your question..." />
-    <button onclick="askAI()">Send</button>
+    <!-- TAB 1: AI Chat & Doubt Solver -->
+    <div id="tab-ai" class="section-card active">
+      <div class="section-title"><i class="fa-solid fa-comments"></i> MDCAT AI Doubt Solver</div>
+      <div class="chat-box" id="aiChatBox">
+        <div class="msg ai-msg">Assalam-o-Alaikum! Ask any concept from Biology, Chemistry, Physics, Logical Reasoning, or English.</div>
+      </div>
+      <div class="input-box">
+        <input type="text" id="aiInput" placeholder="Ask a question (e.g., Explain Enzyme Kinetics)..." onkeypress="if(event.key==='Enter') sendAIQuery('ai')" />
+        <button class="btn-send" onclick="sendAIQuery('ai')">Send</button>
+      </div>
+    </div>
 
-    <!-- Chat Area -->
-    <div id="chat"></div>
+    <!-- TAB 2: MCQs Practice -->
+    <div id="tab-mcqs" class="section-card">
+      <div class="section-title"><i class="fa-solid fa-file-pen"></i> Instant MCQ Generator</div>
+      <div class="chat-box" id="mcqChatBox">
+        <div class="msg ai-msg">Enter any topic to generate targeted MDCAT practice questions with explanations.</div>
+      </div>
+      <div class="input-box">
+        <input type="text" id="mcqInput" placeholder="Enter topic (e.g., 5 MCQs on Cell Wall & Plasma Membrane)..." onkeypress="if(event.key==='Enter') sendAIQuery('mcqs')" />
+        <button class="btn-send" onclick="sendAIQuery('mcqs')">Generate</button>
+      </div>
+    </div>
 
-    <script src="script.js"></script>
+    <!-- TAB 3: Study Planner -->
+    <div id="tab-planner" class="section-card">
+      <div class="section-title"><i class="fa-solid fa-clock"></i> Customized Timetable Planner</div>
+      <div class="chat-box" id="plannerChatBox">
+        <div class="msg ai-msg">Describe your preparation schedule and target hours to get a custom timetable.</div>
+      </div>
+      <div class="input-box">
+        <input type="text" id="plannerInput" placeholder="Specify requirements (e.g., 10-hour daily revision plan)..." onkeypress="if(event.key==='Enter') sendAIQuery('planner')" />
+        <button class="btn-send" onclick="sendAIQuery('planner')">Create Plan</button>
+      </div>
+    </div>
+<!-- TAB 4: Aggregate Calculator -->
+<div id="tab-calc" class="section-card">
+  <div class="section-title"><i class="fa-solid fa-calculator"></i> MDCAT Aggregate Calculator</div>
+  <div class="calc-grid">
+    <div class="form-group">
+      <label>Matric / SSC Marks (1200):</label>
+      <input type="number" id="matricMarks" placeholder="e.g. 1100" />
+    </div>
+    <div class="form-group">
+      <label>FSc Marks (1200):</label>
+      <input type="number" id="fscMarks" placeholder="e.g. 1100" />
+    </div>
+    <div class="form-group">
+      <label>MDCAT Marks (180):</label>
+      <input type="number" id="mdcatMarks" placeholder="e.g. 150" />
+    </div>
+  </div>
+  <button class="btn-send" style="width:100%; margin-bottom: 16px;" onclick="calculateAggregate()">Calculate Aggregate</button>
+  <div class="calc-result" id="aggregateOutput">Aggregate: -- %</div>
+</div>
 
+    <!-- TAB 5: Trig Tables & Physics Tricks -->
+    <div id="tab-trig" class="section-card">
+      <div class="section-title"><i class="fa-solid fa-bolt"></i> Essential Trigonometry Table (Physics Vector & Motion)</div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Angle (&theta;)</th>
+              <th>0&deg;</th>
+              <th>30&deg;</th>
+              <th>45&deg;</th>
+              <th>60&deg;</th>
+              <th>90&deg;</th>
+              <th>180&deg;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>sin (&theta;)</strong></td>
+              <td>0</td>
+              <td>1/2 (0.5)</td>
+              <td>1/&radic;2 (&asymp;0.707)</td>
+              <td>&radic;3/2 (&asymp;0.866)</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td><strong>cos (&theta;)</strong></td>
+              <td>1</td>
+              <td>&radic;3/2 (&asymp;0.866)</td>
+              <td>1/&radic;2 (&asymp;0.707)</td>
+              <td>1/2 (0.5)</td>
+              <td>0</td>
+              <td>-1</td>
+            </tr>
+            <tr>
+              <td><strong>tan (&theta;)</strong></td>
+              <td>0</td>
+              <td>1/&radic;3 (&asymp;0.577)</td>
+              <td>1</td>
+              <td>&radic;3 (&asymp;1.732)</td>
+              <td>Undefined (&infin;)</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="trick-card">
+        <strong>💡 Hand Finger Trick for Quick Recall:</strong><br/>
+        Use your Left Hand (Thumb = 0&deg;, Index = 30&deg;, Middle = 45&deg;, Ring = 60&deg;, Little = 90&deg;):<br/>
+        &bull; <strong>sin(&theta;)</strong> = &radic;(Fingers BELOW) / 2<br/>
+        &bull; <strong>cos(&theta;)</strong> = &radic;(Fingers ABOVE) / 2
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 MDCAT AI Platform | Powered by Vercel & Gemini AI
+  </footer>
+
+  <script>
+    // Tab Switch Functionality
+    function switchTab(tabName, btnElement) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
+      
+      btnElement.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    // Send AI Query Function (Handles Chat, MCQs, Planner)
+    async function sendAIQuery(mode) {
+      const inputId = mode === 'ai' ? 'aiInput' : (mode === 'mcqs' ? 'mcqInput' : 'plannerInput');
+      const boxId = mode === 'ai' ? 'aiChatBox' : (mode === 'mcqs' ? 'mcqChatBox' : 'plannerChatBox');
+
+      const inputField = document.getElementById(inputId);
+      const chatBox = document.getElementById(boxId);
+      const prompt = inputField.value.trim();
+
+      if (!prompt) return;
+
+      // Append User Query
+      chatBox.innerHTML += `<div class="msg user-msg">${prompt}</div>`;
+      inputField.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Append Loading State
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'msg ai-msg';
+      loadingDiv.innerText = 'Generating response from Gemini... Please wait...';
+      chatBox.appendChild(loadingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: prompt, mode: mode })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          loadingDiv.innerText = data.reply;
+        } else {
+          loadingDiv.innerText = `Error: ${data.error || 'Failed to generate response.'}`;
+        }
+      } catch (err) {
+        loadingDiv.innerText = "Connection Error: Check Vercel deployment or network.";
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // MDCAT Aggregate Calculator (Standard Formula: 10% Matric, 40% FSc, 50% MDCAT)
+    function calculateAggregate() {
+      const matric = parseFloat(document.getElementById('matricMarks').value) || 0;
+      const fsc = parseFloat(document.getElementById('fscMarks').value) || 0;
+      const mdcat = parseFloat(document.getElementById('mdcatMarks').value) || 0;
+
+      if (!matric || !fsc || !mdcat) {
+        alert("Please enter valid numbers for Matric, FSc, and MDCAT marks.");
+        return;
+      }
+
+      const matricContrib = (matric / 1200) * 10;
+      const fscContrib = (fsc / 1200) * 40;
+      const mdcatContrib = (mdcat / 180) * 50;
+
+      const totalAggregate = (matricContrib + fscContrib + mdcatContrib).toFixed(3);
+      document.getElementById('aggregateOutput').innerText = `Aggregate: ${totalAggregate} %`;
+    }
+  </script>
 </body>
 </html>
