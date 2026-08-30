@@ -267,84 +267,68 @@
         &bull; <strong>cos(&theta;)</strong> = &radic;(Fingers ABOVE) / 2
       </div>
     </div>
-  </main>
-
+  </main
   <footer>
-    &copy; 2026 MDCAT AI Platform | Powered by Vercel & Gemini AI
+    &copy;
   </footer>
 
   <script>
-    // Tab Switch Functionality
-    function switchTab(tabName, btnElement) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
+                 const totalAggregate = (matricContrib + fscContrib + mdcatContrib).toFixed(3);
+      document.getElementById('aggregateOutput').innerText = `Aggregate: ${totalAggregate} %`;
+    } // 
+  
+
+    // ==========================================
+    // MDCAT AI SOLVER CODE (API KEY)
+    // ==========================================
+    const SYSTEM_PROMPT = "You are MDCAT AI, a helpful study assistant for Pakistani medical entrance exam students.";
+
+    async function askAI() {
+      const inputField = document.getElementById('user-input');
+      const chatBox = document.getElementById('chat-box');
       
-      btnElement.classList.add('active');
-      document.getElementById('tab-' + tabName).classList.add('active');
-    }
+      if (!inputField || !chatBox) return;
+      const userMessage = inputField.value.trim();
+      if (!userMessage) return;
 
-    // Send AI Query Function (Handles Chat, MCQs, Planner)
-    async function sendAIQuery(mode) {
-      const inputId = mode === 'ai' ? 'aiInput' : (mode === 'mcqs' ? 'mcqInput' : 'plannerInput');
-      const boxId = mode === 'ai' ? 'aiChatBox' : (mode === 'mcqs' ? 'mcqChatBox' : 'plannerChatBox');
-
-      const inputField = document.getElementById(inputId);
-      const chatBox = document.getElementById(boxId);
-      const prompt = inputField.value.trim();
-
-      if (!prompt) return;
-
-      // Append User Query
-      chatBox.innerHTML += `<div class="msg user-msg">${prompt}</div>`;
+      chatBox.innerHTML += `<div class="user-msg">${userMessage}</div>`;
       inputField.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Append Loading State
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'msg ai-msg';
-      loadingDiv.innerText = 'Generating response from Gemini... Please wait...';
-      chatBox.appendChild(loadingDiv);
+      const loadingId = 'loading-' + Date.now();
+      chatBox.innerHTML += `<div id="${loadingId}" class="ai-msg">Thinking...</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
-        const response = await fetch('/api/chat', {
+        
+        
+      
+        
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt, mode: mode })
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Question: ${userMessage}` }] }]
+          })
         });
 
         const data = await response.json();
-        
-        if (response.ok) {
-          loadingDiv.innerText = data.reply;
+        const loadingEl = document.getElementById(loadingId);
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          loadingEl.innerText = data.candidates[0].content.parts[0].text;
+        } else if (data.error) {
+          loadingEl.innerText = "Error: " + data.error.message;
         } else {
-          loadingDiv.innerText = `Error: ${data.error || 'Failed to generate response.'}`;
+          loadingEl.innerText = "Response nahi mila, dobara try karein.";
         }
       } catch (err) {
-        loadingDiv.innerText = "Connection Error: Check Vercel deployment or network.";
+        document.getElementById(loadingId).innerText = "Network error. Please check your connection.";
       }
-
       chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // MDCAT Aggregate Calculator (Standard Formula: 10% Matric, 40% FSc, 50% MDCAT)
-    function calculateAggregate() {
-      const matric = parseFloat(document.getElementById('matricMarks').value) || 0;
-      const fsc = parseFloat(document.getElementById('fscMarks').value) || 0;
-      const mdcat = parseFloat(document.getElementById('mdcatMarks').value) || 0;
-
-      if (!matric || !fsc || !mdcat) {
-        alert("Please enter valid numbers for Matric, FSc, and MDCAT marks.");
-        return;
-      }
-
-      const matricContrib = (matric / 1200) * 10;
-      const fscContrib = (fsc / 1200) * 40;
-      const mdcatContrib = (mdcat / 180) * 50;
-
-      const totalAggregate = (matricContrib + fscContrib + mdcatContrib).toFixed(3);
-      document.getElementById('aggregateOutput').innerText = `Aggregate: ${totalAggregate} %`;
-    }
-  </script>
+    } // 
+  </script> 
 </body>
 </html>
+
+
+
